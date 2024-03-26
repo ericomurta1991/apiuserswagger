@@ -19,7 +19,7 @@ import com.example.demo.repositories.UserRepository;
 import com.example.demo.services.exceptions.DataBaseException;
 import com.example.demo.services.exceptions.ResourceNotFoundException;
 
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 
  
 
