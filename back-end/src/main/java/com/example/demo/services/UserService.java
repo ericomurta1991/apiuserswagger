@@ -4,6 +4,8 @@ package com.example.demo.services;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,10 @@ import com.example.demo.entities.User;
 import com.example.demo.dto.UserDto;
 
 import com.example.demo.repositories.UserRepository;
+import com.example.demo.services.exceptions.DataBaseException;
+import com.example.demo.services.exceptions.ResourceNotFoundException;
+
+import jakarta.persistence.EntityNotFoundException;
 
  
 
@@ -34,8 +40,9 @@ public class UserService {
 	
 	public UserDto findById (Long id) {
 		Optional<User> obj = repository.findById(id);
+		//User entity = obj.get();
 		
-		User entity = obj.get();
+		User entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity Not Found."));
 		return new UserDto(entity);
 	}
 	
@@ -61,16 +68,18 @@ public class UserService {
 			
 			return new UserDto(entity);
 			
-		} catch(Error e) {
-			throw new Error("Id Not found");
+		} catch(EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Id Not found" + id);
 		}
 	}
 	
 	public void delete (Long id ) {
 		try {
 			repository.deleteById(id);
-		} catch(Error e) {
-			throw new Error("Id Not found");
+		} catch(EmptyResultDataAccessException e) {
+			throw new ResourceNotFoundException("Id Not found" + id);
+		} catch(DataIntegrityViolationException e ) {
+			throw new DataBaseException("Integrity Violation");
 		}
 	}
 	
