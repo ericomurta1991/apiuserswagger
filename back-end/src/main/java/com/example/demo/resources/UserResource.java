@@ -21,6 +21,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.example.demo.dto.UserDto;
 import com.example.demo.services.UserService;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @RestController
 @RequestMapping(value = "/users")
 public class UserResource {
@@ -28,7 +32,8 @@ public class UserResource {
 	@Autowired
 	private UserService service;
 	
-	@GetMapping
+	@GetMapping(produces = "application/json")
+	@ApiOperation(value = "search all users", notes = "searches all users and displays them in a page format")
 	public ResponseEntity<Page<UserDto>> findAll(
 			@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "linesPerPage", defaultValue = "12") Integer linesPerPage,
@@ -44,14 +49,21 @@ public class UserResource {
 			return ResponseEntity.ok().body(list);
 	}
 	
-	@GetMapping(value = "/{id}")
+	@GetMapping(value = "/{id}", produces = "application/json")
+	@ApiOperation(value = "search user by id", notes = "method used to search for a specific user by id")
+	@ApiResponses(
+			{
+				@ApiResponse(code = 401, message = "Unauthorized"),
+				@ApiResponse(code = 403, message = "Forbidden"),
+				@ApiResponse(code = 404, message = "Not Found")
+			})
 	public ResponseEntity<UserDto> findById(@PathVariable Long id){
 		UserDto dto = service.findById(id);
 		return ResponseEntity.ok().body(dto);
 	}
 	
 	
-	@PostMapping
+	@PostMapping(produces = "application/json")
 	public ResponseEntity<UserDto> insert(@RequestBody UserDto dto){
 		dto = service.insert(dto);
 		URI uri =  ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.getId()).toUri();
@@ -59,7 +71,7 @@ public class UserResource {
 		return ResponseEntity.created(uri).body(dto);
 	}
 	
-	@PutMapping(value = "/{id}")
+	@PutMapping(value = "/{id}", produces = "application/json")
 	public ResponseEntity<UserDto> update(@PathVariable Long id, @RequestBody UserDto dto){
 		dto = service.update(id, dto);
 		return ResponseEntity.ok().body(dto);
