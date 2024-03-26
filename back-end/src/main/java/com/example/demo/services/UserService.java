@@ -39,15 +39,18 @@ public class UserService {
 		return new UserDto(entity);
 	}
 	
+	@Transactional
 	public UserDto insert(UserDto dto) {
 		
 		User entity = new User();
 			entity.setName(dto.getName());
 			entity.setAge(dto.getAge());
-			entity.setEmail(dto.getEmail());	
+			entity.setEmail(dto.getEmail());
+			entity = repository.save(entity);
 		return new UserDto(entity);		
 	}
 	
+	@Transactional
 	public UserDto update(Long id, UserDto dto) {
 		try {
 			User entity  = repository.getReferenceById(id);
